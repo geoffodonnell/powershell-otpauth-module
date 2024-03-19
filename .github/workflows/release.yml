@@ -1,0 +1,102 @@
+# SEE: https://learn.microsoft.com/en-us/dotnet/standard/library-guidance/versioning
+# SEE: https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
+# SEE: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+name: Build Release
+on: workflow_dispatch
+env:
+    buildConfiguration: 'Release'
+    moduleName: 'OtpAuth'
+    guid: '2035F7AE-BB3D-46E0-8BB9-3C8116B43611'
+    majorVersion: '0'
+    minorVersion: '0'
+    buildVersion: ${{ github.run_number }}
+    prerelease: ''
+    artifactName: 'module-archive'
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v4
+        - name: Setup dotnet
+          uses: actions/setup-dotnet@v4
+          with:
+            dotnet-version: '8.0.x'
+        - name: Build module
+          run: >
+            dotnet publish src/OtpAuth.PowerShell/OtpAuth.PowerShell.csproj 
+            --configuration ${{ env.buildConfiguration }} 
+            --output ${{ runner.temp }}/${{ env.moduleName }} 
+            --no-self-contained
+            /p:Version="${{ env.majorVersion }}.${{ env.minorVersion }}.${{ env.buildVersion }}.0"
+            /p:FileVersion="${{ env.majorVersion }}.${{ env.minorVersion }}.${{ env.buildVersion }}.0"
+            /p:AssemblyVersion="${{ env.majorVersion }}.0.0.0"
+            /p:InformationalVersion="${{ env.majorVersion }}.${{ env.minorVersion }}.${{ env.buildVersion }}.0+${{ github.sha }}"
+        - name: Arrange native assemblies
+          shell: pwsh
+          run: |-
+            $runtimesPath = Join-Path -Path "${{ runner.temp }}/${{ env.moduleName }}" -ChildPath "runtimes"
+
+            Get-ChildItem -Path $runtimesPath | ForEach-Object {
+
+                $target = New-Item -ItemType Directory -Path $buildOutputPath -Name $_.Name
+
+                Get-ChildItem -Path (Join-Path -Path $_.FullName -ChildPath "native") | ForEach-Object {
+                    Move-Item -Path $_.FullName -Destination $target
+                }
+            }
+
+            Remove-Item -Path $runtimesPath -Recurse -Force
+        - name: 'Create module manifest' 
+          shell: pwsh
+          run: >
+            ./src/create-module-manifest.ps1
+            -Path "${{ runner.temp }}/${{ env.moduleName }}"
+            -Prerelease "${{ env.prerelease }}"
+            -Guid "${{ env.guid }}"
+        - name: Upload module artifact
+          uses: actions/upload-artifact@v3
+          with:
+            name: ${{ env.artifactName }}
+            path: "${{ runner.temp }}/${{ env.moduleName }}/"
+    publish:
+        runs-on: ubuntu-latest
+        permissions:
+            actions: read
+            packages: write
+        steps:
+          - name: Download module artifacts
+            uses: actions/download-artifact@v4
+            with:
+              name: ${{ env.artifactName }}
+              path: ${{ runner.temp }}/${{ env.moduleName }}
+          - name: Publish module
+            shell: pwsh
+            run: |-
+                $user = "${{ github.actor }}"
+                $token = "${{ github.token }}" | ConvertTo-SecureString -AsPlainText -Force
+                $creds = New-Object System.Management.Automation.PSCredential -ArgumentList @($user, $token)
+                $feed = "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+                $moduleName = "${{ env.moduleName }}"
+                $repositoryName = "PowershellNugetServices"
+                
+                $dropPath = "${{ runner.temp }}"
+                $modulePath = [System.IO.Path]::GetFullPath((Join-Path -Path $dropPath -ChildPath $moduleName))
+                
+                ## Force TLS1.2
+                [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+                
+                ## Register repository
+                $registerArgs = @{
+                    Name = $repositoryName
+                    SourceLocation = $feed
+                    PublishLocation = $feed
+                    InstallationPolicy = 'Trusted'
+                    Credential = $creds
+                }
+                
+                Register-PSRepository @registerArgs
+                
+                ## Test
+                Get-PackageSource
+                
+                Publish-Module -Path $modulePath -Repository $repositoryName -NuGetApiKey "${{ github.token }}"     

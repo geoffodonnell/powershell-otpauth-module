@@ -1,17 +1,17 @@
 [CmdletBinding()]
 param (
-    [Parameter(Position = 0, mandatory = $false)]
+    [Parameter(Position = 0, Mandatory = $false)]
     [string] $Configuration = "Debug",
-    [Parameter(Position = 1, mandatory = $false)]
+    [Parameter(Position = 1, Mandatory = $false)]
     [string] $ModuleName = "OtpAuth",
-    [Parameter(Position = 2, mandatory = $false)]
+    [Parameter(Position = 2, Mandatory = $false)]
     [string] $Prerelease = "dev"
 )
 
 function Get-FullPath {
     [CmdletBinding()]
     param (
-        [Parameter(Position = 0, mandatory = $true)]
+        [Parameter(Position = 0, Mandatory = $false)]
         [string] $RelativePath = "Debug"
     )
     $pathSeparator = [System.IO.Path]::DirectorySeparatorChar
@@ -33,7 +33,22 @@ if (Test-Path -Path "$buildOutputPath" -ErrorAction SilentlyContinue) {
 }
 
 ## Build
-dotnet publish "$projectPath" --configuration "$Configuration" --output "$buildOutputPath" --no-self-contained --runtime win-x64
+dotnet publish "$projectPath" --configuration "$Configuration" --output "$buildOutputPath" --no-self-contained
+
+## Arrange native assemblies
+## SEE: https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/writing-portable-modules?view=powershell-7.4
+$runtimesPath = Join-Path -Path $buildOutputPath -ChildPath "runtimes"
+
+Get-ChildItem -Path $runtimesPath | ForEach-Object {
+
+    $target = New-Item -ItemType Directory -Path $buildOutputPath -Name $_.Name
+
+    Get-ChildItem -Path (Join-Path -Path $_.FullName -ChildPath "native") | ForEach-Object {
+        Move-Item -Path $_.FullName -Destination $target
+    }
+}
+
+Remove-Item -Path $runtimesPath -Recurse -Force
 
 ## Create the module manifest
 Invoke-Expression "$createModuleManifest -Path '$buildOutputPath' -Guid $guid -Prerelease '$Prerelease'"

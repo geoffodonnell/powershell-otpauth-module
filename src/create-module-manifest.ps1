@@ -13,10 +13,10 @@ if (-not (Test-Path -Path $Path -ErrorAction SilentlyContinue)){
     return;
 }
 
-$author = "GBO Systems"
+$author = "Geoff O'Donnell"
 $rootModule = "OtpAuth.PowerShell.dll"
 
-$name = Get-Item -Path $Path | Select -ExpandProperty Name
+$name = Get-Item -Path $Path | Select-Object -ExpandProperty Name
 $moduleName = "$($name).psd1";
 $modulePath = [System.IO.Path]::GetFullPath((Join-Path -Path $Path -ChildPath $moduleName))
 
@@ -30,13 +30,13 @@ $newModuleManifestArgs = @{
     CmdletsToExport         = "*"
     CompanyName             = $author
     CompatiblePSEditions    = "Core"
-    Description             = "PowerShell interface for OTP operations"
+    Description             = "One Time Password Authentication Tools for PowerShell"
     Guid                    = $Guid
-    LicenseUri              = "https://raw.githubusercontent.com/gbosystems/powershell-otpauth-module/main/LICENSE"
+    LicenseUri              = "https://raw.githubusercontent.com/geoffodonnell/powershell-otpauth-module/main/LICENSE"
     ModuleVersion           = $version
     Path                    = $modulePath
-    PowerShellVersion       = "7.2" # Require .NET 6.0
-    ProjectUri              = "https://github.com/gbosystems/powershell-otpauth-module"
+    PowerShellVersion       = "7.4" # Require .NET 8.0
+    ProjectUri              = "https://github.com/geoffodonnell/powershell-otpauth-module"
     RootModule              = $rootModule
 }
 
