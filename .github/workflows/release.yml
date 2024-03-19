@@ -56,7 +56,7 @@ jobs:
             -Prerelease "${{ env.prerelease }}"
             -Guid "${{ env.guid }}"
         - name: Upload module artifact
-          uses: actions/upload-artifact@v3
+          uses: actions/upload-artifact@v4
           with:
             name: ${{ env.artifactName }}
             path: "${{ runner.temp }}/${{ env.moduleName }}/"
