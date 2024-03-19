@@ -34,6 +34,11 @@ jobs:
         - name: Arrange native assemblies
           shell: pwsh
           run: |-
+
+            Get-ChildItem -Path "${{ runner.temp }}/" -Recurse | ForEach-Object {
+                Write-Output $_.FullName
+            }
+
             $runtimesPath = Join-Path -Path "${{ runner.temp }}/${{ env.moduleName }}" -ChildPath "runtimes"
 
             Get-ChildItem -Path $runtimesPath | ForEach-Object {
