@@ -46,6 +46,19 @@ namespace OtpAuth.PowerShell.Model {
 			};
 		}
 
+		public OtpMigrationParameters ToParameters() {
+
+			return new OtpMigrationParameters {
+				Name = Name,
+				Secret = Convert.FromBase64String(Secret.ReadString()),
+				Issuer = Issuer,
+				Algorithm = Algorithm,
+				Digits = Digits,
+				Type = Type,
+				Counter = Counter
+			};
+		}
+
 		public static CredentialModel FromKeePassEntry(PwEntry entry) {
 
 			return new CredentialModel {
