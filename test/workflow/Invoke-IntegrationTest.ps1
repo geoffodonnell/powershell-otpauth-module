@@ -7,6 +7,17 @@ Param(
     [switch] $Write
 )
 
+## Load assemblies 
+Get-Module -Name OtpAuth `
+    | Select-Object -ExpandProperty Path `
+    | Get-Item `
+    | Select-Object -ExpandProperty Directory `
+    | Get-ChildItem -Filter *.dll `
+    | Select-Object -ExpandProperty FullName `
+    | ForEach-Object {
+        Add-Type -Path $_
+    }
+
 $credential = New-Object -TypeName OtpAuth.PowerShell.Model.CredentialModel
 $secretAsB64 = [Convert]::ToBase64String(@(0xDE, 0xAD, 0xBE, 0xEF));
 $secret = New-Object -TypeName KeePassLib.Security.ProtectedString -ArgumentList @($true, $secretAsB64)
