@@ -33,7 +33,8 @@ if (Test-Path -Path "$buildOutputPath" -ErrorAction SilentlyContinue) {
 }
 
 ## Build
-dotnet publish "$projectPath" --configuration "$Configuration" --output "$buildOutputPath" --no-self-contained
+dotnet publish "$projectPath" --configuration "$Configuration" --output "$buildOutputPath" --no-self-contained /p:FileVersion="1.0.0"
+
 
 ## Arrange native assemblies
 ## SEE: https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/writing-portable-modules?view=powershell-7.4

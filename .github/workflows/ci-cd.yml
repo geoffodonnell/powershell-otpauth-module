@@ -56,10 +56,10 @@ jobs:
             --configuration ${{ env.buildConfiguration }} 
             --output ${{ runner.temp }}/${{ env.moduleName }} 
             --no-self-contained
-            /p:Version="${{ env.majorVersion }}.${{ env.minorVersion }}.${{ env.buildVersion }}.0"
-            /p:FileVersion="${{ env.majorVersion }}.${{ env.minorVersion }}.${{ env.buildVersion }}.0"
-            /p:AssemblyVersion="${{ env.majorVersion }}.0.0.0"
-            /p:InformationalVersion="${{ env.majorVersion }}.${{ env.minorVersion }}.${{ env.buildVersion }}.0+${{ github.sha }}"
+            /p:Version="${{ env.majorVersion }}.${{ env.minorVersion }}.${{ env.buildVersion }}"
+            /p:FileVersion="${{ env.majorVersion }}.${{ env.minorVersion }}.${{ env.buildVersion }}"
+            /p:AssemblyVersion="${{ env.majorVersion }}.0.0"
+            /p:InformationalVersion="${{ env.majorVersion }}.${{ env.minorVersion }}.${{ env.buildVersion }}+${{ github.sha }}"
         - name: Arrange native assemblies
           shell: pwsh
           run: |-
