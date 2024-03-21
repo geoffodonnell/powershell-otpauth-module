@@ -81,7 +81,7 @@ if ($Read) {
         exit 1
     }
 
-    exit 1 ## TODO: Back to 0
+    exit 0
 }
 
 exit 1
