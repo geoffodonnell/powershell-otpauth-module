@@ -3,7 +3,7 @@ param (
     [Parameter(Position = 0, Mandatory = $false)]
     [string] $Configuration = "Debug",
     [Parameter(Position = 1, Mandatory = $false)]
-    [string] $ModuleName = "OtpAuth",
+    [string] $ModuleName = "OtpAuth.Local",
     [Parameter(Position = 2, Mandatory = $false)]
     [string] $Prerelease = "dev"
 )

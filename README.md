@@ -22,7 +22,7 @@ Confirm password: ********
 Created account store: 'C:\Users\admin\AppData\Local\.otpauth\credentials.kdbx'
 ```
 
-It is not neccessary to use the credential ctore to obtain a credential object for generating OTP codes.
+It is not neccessary to use the credential store to obtain a credential object for generating OTP codes.
 
 # Usage Examples
 
@@ -43,10 +43,31 @@ Once the credential store has been initialized and opened, credentials can be di
 PS C:\Users\admin> Import-OtpAuthCredential -Path "C:\Users\admin\Downloads\IMG_1234.png" | Save-OtpAuthCredential
 ```
 
-# Generating OTP code
+## Generating OTP code
 
 Once the credential store has been initialized and opened, credentials can be retrieved and used to generate OTP codes.
 
 ```PowerShell
 PS C:\Users\admin> Get-OtpCredential -Issuer "Example" | Get-OtpAuthCode
 ```
+
+# Build
+
+## Prerequisites
+* .NET 8 SDK
+* PowerShell 7.4
+
+## Local
+Clone this repository and execute `build-and-load-local.ps1` in a PowerShell window to build the module and import it into the current session. By default, when building locally the module is named `OtpAuth.Local`.
+
+## Pipelines
+powershell-outauth-module build pipelines use GitHub Actions workflows.
+
+# License
+powershell-outauth-module is licensed under a MIT license except for the exceptions listed below. See the LICENSE file for details.
+
+## Exceptions
+None.
+
+# Disclaimer
+Nothing in the repository constitutes professional and/or financial advice. Use this module at your own risk.
