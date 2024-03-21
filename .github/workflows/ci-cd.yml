@@ -1,7 +1,7 @@
 # SEE: https://learn.microsoft.com/en-us/dotnet/standard/library-guidance/versioning
 # SEE: https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
 # SEE: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-name: Release
+name: CI/CD
 on:
   push:
     branches:
