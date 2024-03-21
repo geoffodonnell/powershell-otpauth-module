@@ -101,8 +101,6 @@ jobs:
             actions: read
         steps:
             - uses: actions/checkout@v4
-              with:
-                path: ${{ runner.temp }}/repository
             - name: Download module artifacts
               uses: actions/download-artifact@v4
               with:
@@ -112,12 +110,12 @@ jobs:
               shell: pwsh
               run: |-
                 Import-Module -Name "${{ runner.temp }}\${{ env.moduleName }}\${{ env.moduleName }}.psd1"
-                ${{ runner.temp }}\repository\test\workflow\Invoke-IntegrationTest.ps1 -ImagePath "${{ runner.temp }}\output.png" -Write
+                ${{ github.workspace }}\test\workflow\Invoke-IntegrationTest.ps1 -ImagePath "${{ runner.temp }}\output.png" -Write
             - name: Test credential import
               shell: pwsh
               run: |-
                 Import-Module -Name "${{ runner.temp }}\${{ env.moduleName }}\${{ env.moduleName }}.psd1"
-                ${{ runner.temp }}\repository\test\workflow\Invoke-IntegrationTest.ps1 -ImagePath "${{ runner.temp }}\output.png" -Read
+                ${{ github.workspace }}\test\workflow\Invoke-IntegrationTest.ps1 -ImagePath "${{ runner.temp }}\output.png" -Read
     publish:
         name: Publish
         runs-on: ubuntu-latest
