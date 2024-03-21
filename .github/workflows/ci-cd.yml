@@ -9,11 +9,11 @@ on:
       - 'develop'
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'
 env:
     buildConfiguration: 'Release'
     moduleName: 'OtpAuth'
     guid: '2035F7AE-BB3D-46E0-8BB9-3C8116B43611'
-    prerelease: ''
     artifactName: 'module-archive'
 jobs:
     build:
@@ -29,22 +29,30 @@ jobs:
           shell: pwsh
           run: |-
             $version = "${{ github.ref_name }}"
-            $result = $version | Select-String -Pattern "v([0-9]+).([0-9]+).([0-9]+)"
+            $result = $version | Select-String -Pattern "v([0-9]+).([0-9]+).([0-9]+)(-)?([A-Za-z]+)?""
 
-            if ($result) {
-                $majorVersion = $result[0].Matches[0].Groups[1].Value
-                $minorVersion = $result[0].Matches[0].Groups[2].Value
-                $buildVersion = $result[0].Matches[0].Groups[3].Value
+            if ($result.Matches.Success) {
+                $majorVersion = $result.Matches.Groups[1].Value
+                $minorVersion = $result.Matches.Groups[2].Value
+                $buildVersion = $result.Matches.Groups[3].Value
+
+                if ($result.Matches.Groups -eq 6) {
+                    $prerelease = $result.Matches.Groups[5].Value
+                } else {
+                    $prerelease = ''
+                }
             } else {
                 $majorVersion = 0
                 $minorVersion = 0
                 $buildVersion = 0
+                $prerelease = ''
             }
 
             # https://www.jamescroft.co.uk/setting-github-actions-environment-variables-in-powershell/
             echo "majorVersion=$majorVersion" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
             echo "minorVersion=$minorVersion" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
             echo "buildVersion=$buildVersion" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+            echo "prerelease=$prerelease" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
         - name: Build module
           run: >
             dotnet publish src/OtpAuth.PowerShell/OtpAuth.PowerShell.csproj 
