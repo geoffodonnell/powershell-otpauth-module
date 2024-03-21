@@ -4,11 +4,13 @@ Param(
     [Parameter(Mandatory = $true, ValueFromPipeline = $false, ParameterSetName="Read")]
     [switch] $Read,
     [Parameter(Mandatory = $true, ValueFromPipeline = $false, ParameterSetName="Write")]
-    [switch] $Write
+    [switch] $Write,
+    [Parameter(Mandatory = $false, ValueFromPipeline = $false)]
+    [string]$ModuleName = "OtpAuth"
 )
 
 ## Load assemblies 
-Get-Module -Name OtpAuth `
+Get-Module -Name $ModuleName `
     | Select-Object -ExpandProperty Path `
     | Get-Item `
     | Select-Object -ExpandProperty Directory `

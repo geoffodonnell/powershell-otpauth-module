@@ -3,7 +3,7 @@
 [![CI/CD](https://github.com/geoffodonnell/powershell-otpauth-module/actions/workflows/ci-cd.yml/badge.svg?branch=develop&event=push)](https://github.com/geoffodonnell/powershell-otpauth-module/actions/workflows/ci-cd.yml)
 
 # Overview
-One Time Password Authentication Tools for PowerShell
+This module provides command line access to OTP codes managed by Google Authenticator (or other applications). Users can exports credentials via QR codes, import credentials using these images, and generate OTP codes in a PowerShell terminal window.
 
 # Installation
 tbd
@@ -30,7 +30,18 @@ It is not neccessary to use the credential store to obtain a credential object f
 Credentials can be imported from QR Code image exports from Google Authenticator (and others).
 
 ```PowerShell
-PS C:\Users\admin> Import-OtpAuthCredential -Path "C:\Users\admin\Downloads\IMG_1234.png"
+PS C:\Users\admin> Import-OtpAuthCredential -Path ".\test.png"
+
+Id        : 31987bd3-3941-4719-b984-8e26003e90e5
+Name      : user@example.com
+Secret    : KeePassLib.Security.ProtectedString
+Issuer    : Example
+Algorithm : SHA1
+Digits    : Six
+Type      : TOTP
+Counter   : 0
+Created   : 3/21/2024 7:07:20 PM +00:00
+Updated   : 3/21/2024 7:07:20 PM +00:00
 ```
 
 The above command returns one or multiple credential objects.
@@ -40,7 +51,7 @@ The above command returns one or multiple credential objects.
 Once the credential store has been initialized and opened, credentials can be directly imported from QR Code images.
 
 ```PowerShell
-PS C:\Users\admin> Import-OtpAuthCredential -Path "C:\Users\admin\Downloads\IMG_1234.png" | Save-OtpAuthCredential
+PS C:\Users\admin> Import-OtpAuthCredential -Path ".\test.png" | Save-OtpAuthCredential
 ```
 
 ## Generating OTP code
@@ -48,7 +59,8 @@ PS C:\Users\admin> Import-OtpAuthCredential -Path "C:\Users\admin\Downloads\IMG_
 Once the credential store has been initialized and opened, credentials can be retrieved and used to generate OTP codes.
 
 ```PowerShell
-PS C:\Users\admin> Get-OtpCredential -Issuer "Example" | Get-OtpAuthCode
+PS C:\Users\admin> Get-OtpAuthCredential -Issuer "Example" | Get-OtpAuthCode
+894034
 ```
 
 # Build
