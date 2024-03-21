@@ -46,6 +46,10 @@ Get-ChildItem -Path $runtimesPath | ForEach-Object {
     Get-ChildItem -Path (Join-Path -Path $_.FullName -ChildPath "native") | ForEach-Object {
         Move-Item -Path $_.FullName -Destination $target
     }
+
+    if ($_.Name -eq 'osx') {
+        Get-ChildItem -Path $target | Copy-Item -Destination $buildOutputPath
+    }
 }
 
 Remove-Item -Path $runtimesPath -Recurse -Force

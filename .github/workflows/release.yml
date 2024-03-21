@@ -35,7 +35,6 @@ jobs:
         - name: Arrange native assemblies
           shell: pwsh
           run: |-
-
             $buildOutputPath = "${{ runner.temp }}/${{ env.moduleName }}"
             $runtimesPath = Join-Path -Path $buildOutputPath -ChildPath "runtimes"
 
@@ -45,6 +44,10 @@ jobs:
 
                 Get-ChildItem -Path (Join-Path -Path $_.FullName -ChildPath "native") | ForEach-Object {
                     Move-Item -Path $_.FullName -Destination $target
+                }
+
+                if ($_.Name -eq 'osx') {
+                    Get-ChildItem -Path $target | Copy-Item -Destination $buildOutputPath
                 }
             }
 
