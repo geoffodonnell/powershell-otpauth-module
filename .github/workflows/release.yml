@@ -2,14 +2,17 @@
 # SEE: https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
 # SEE: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
 name: Release
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      - 'main'
+      - 'develop'
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 env:
     buildConfiguration: 'Release'
     moduleName: 'OtpAuth'
     guid: '2035F7AE-BB3D-46E0-8BB9-3C8116B43611'
-    majorVersion: '0'
-    minorVersion: '0'
-    buildVersion: ${{ github.run_number }}
     prerelease: ''
     artifactName: 'module-archive'
 jobs:
@@ -22,6 +25,26 @@ jobs:
           uses: actions/setup-dotnet@v4
           with:
             dotnet-version: '8.0.x'
+        - name: Set version info
+          shell: pwsh
+          run: |-
+            $version = "${{ github.ref_name }}"
+            $result = $version | Select-String -Pattern "v([0-9]+).([0-9]+).([0-9]+)"
+
+            if ($result) {
+                $majorVersion = $result[0].Matches[0].Groups[1].Value
+                $minorVersion = $result[0].Matches[0].Groups[2].Value
+                $buildVersion = $result[0].Matches[0].Groups[3].Value
+            } else {
+                $majorVersion = 0
+                $minorVersion = 0
+                $buildVersion = 0
+            }
+
+            # https://www.jamescroft.co.uk/setting-github-actions-environment-variables-in-powershell/
+            echo "majorVersion=$majorVersion" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+            echo "minorVersion=$minorVersion" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+            echo "buildVersion=$buildVersion" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
         - name: Build module
           run: >
             dotnet publish src/OtpAuth.PowerShell/OtpAuth.PowerShell.csproj 
@@ -136,6 +159,7 @@ jobs:
     publish:
         name: Publish
         runs-on: ubuntu-latest
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
         needs: [test-osx, test-ubuntu, test-windows]
         permissions:
             actions: read
