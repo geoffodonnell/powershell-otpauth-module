@@ -36,7 +36,7 @@ jobs:
                 $minorVersion = $result.Matches.Groups[2].Value
                 $buildVersion = $result.Matches.Groups[3].Value
 
-                if ($result.Matches.Groups -eq 6) {
+                if ($result.Matches.Groups.Length -eq 6) {
                     $prerelease = $result.Matches.Groups[5].Value
                 }
             } else {
