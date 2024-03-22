@@ -19,7 +19,7 @@ Set password for the new credential store.
 Enter password: ********
 Confirm password: ********
 
-Created account store: 'C:\Users\admin\AppData\Local\.otpauth\credentials.kdbx'
+Created credential store: 'C:\Users\admin\AppData\Local\.otpauth\credentials.kdbx'
 ```
 
 It is not neccessary to use the credential store to obtain a credential object for generating OTP codes.
