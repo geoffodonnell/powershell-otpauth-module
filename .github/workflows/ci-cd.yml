@@ -175,6 +175,17 @@ jobs:
             with:
               name: ${{ env.artifactName }}
               path: ${{ runner.temp }}/${{ env.moduleName }}
+          - name: Set prelease value
+            shell: pwsh
+            run: |-
+              $version = "${{ github.ref_name }}"
+              $result = $version | Select-String -Pattern "v([0-9]+).([0-9]+).([0-9]+)(-)?([A-Za-z]+)?"
+
+              if ($result.Matches.Success -and $result.Matches.Groups.Length -eq 6) {
+                $prerelease = $result.Matches.Groups[5].Value
+              }
+              # https://www.jamescroft.co.uk/setting-github-actions-environment-variables-in-powershell/
+              echo "prerelease=$prerelease" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
           - name: Publish module to GitHub
             shell: pwsh
             run: |-
