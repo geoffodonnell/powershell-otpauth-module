@@ -6,7 +6,17 @@
 This module provides command line access to OTP codes managed by Google Authenticator (or other applications). Users can exports credentials via QR codes, import credentials using these images, and generate OTP codes in a PowerShell terminal window.
 
 # Installation
-tbd
+This module is published to [PSGallery](https://www.powershellgallery.com/packages/OtpAuth), therefore it can be installed with the following command:
+
+```PowerShell
+PS> Install-Module -Name OtpAuth -Verbose
+```
+
+Note, after installing the module call `Import-Module` to load it into the current session.
+
+## Beta Releases
+Beta releases are published to the [GitHub Packages Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-nuget-registry):
+* [https://nuget.pkg.github.com/geoffodonnell/index.json](https://nuget.pkg.github.com/geoffodonnell/index.json)
 
 # Getting Started
 
