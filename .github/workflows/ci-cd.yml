@@ -175,7 +175,7 @@ jobs:
             with:
               name: ${{ env.artifactName }}
               path: ${{ runner.temp }}/${{ env.moduleName }}
-          - name: Publish module
+          - name: Publish module to GitHub
             shell: pwsh
             run: |-
                 $user = "${{ github.actor }}"
@@ -205,4 +205,17 @@ jobs:
                 ## Test
                 Get-PackageSource
                 
-                Publish-Module -Path $modulePath -Repository $repositoryName -NuGetApiKey "${{ github.token }}"     
+                Publish-Module -Path $modulePath -Repository $repositoryName -NuGetApiKey "${{ github.token }}"
+          - name: Publish module to PowerShell Gallery
+            if: ${{ env.prerelease == '' }}
+            shell: pwsh
+            run: |-                
+                $dropPath = "${{ runner.temp }}"
+                $moduleName = "${{ env.moduleName }}"
+                $modulePath = [System.IO.Path]::GetFullPath((Join-Path -Path $dropPath -ChildPath $moduleName))
+                
+                ## Force TLS1.2
+                [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+                
+                ## Publish to PSGallery
+                Publish-Module -Path "$modulePath" -Repository "PSGallery" -NuGetApiKey "${{ secrets.PSGALLERY_API_KEY }}"
