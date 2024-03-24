@@ -1,6 +1,7 @@
 # powershell-otpauth-module
 
 [![CI/CD](https://github.com/geoffodonnell/powershell-otpauth-module/actions/workflows/ci-cd.yml/badge.svg?branch=develop&event=push)](https://github.com/geoffodonnell/powershell-otpauth-module/actions/workflows/ci-cd.yml)
+[![PSGallery version](https://img.shields.io/powershellgallery/v/OtpAuth?include_prereleases)](https://www.powershellgallery.com/packages/OtpAuth)
 
 # Overview
 This module provides command line access to OTP codes managed by Google Authenticator (or other applications). Users can exports credentials via QR codes, import credentials using these images, and generate OTP codes in a PowerShell terminal window.
