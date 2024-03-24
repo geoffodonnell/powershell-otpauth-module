@@ -50,6 +50,10 @@ jobs:
             echo "minorVersion=$minorVersion" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
             echo "buildVersion=$buildVersion" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
             echo "prerelease=$prerelease" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+        - name: Execute unit tests
+          run: >
+            dotnet test test/OtpAuth.PowerShell.Test/OtpAuth.PowerShell.Test.csproj
+            --configuration ${{ env.buildConfiguration }}
         - name: Build module
           run: >
             dotnet publish src/OtpAuth.PowerShell/OtpAuth.PowerShell.csproj 
