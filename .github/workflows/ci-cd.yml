@@ -52,7 +52,7 @@ jobs:
             echo "prerelease=$prerelease" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
         - name: Execute unit tests
           run: >
-            dotnet test test/OtpAuth.PowerShell.Test/OtpAuth.PowerShell.Test.csproj
+            dotnet test test/OtpAuth.PowerShell.UnitTest/OtpAuth.PowerShell.UnitTest.csproj
             --configuration ${{ env.buildConfiguration }}
         - name: Build module
           run: >
