@@ -9,6 +9,52 @@ Param(
     [string]$ModuleName = "OtpAuth"
 )
 
+Function Test-CredentialsEqual {
+    Param(
+        [OtpAuth.PowerShell.Model.CredentialModel] $a,
+        [OtpAuth.PowerShell.Model.CredentialModel] $b
+    )
+
+    ## NOTE: Id, Created, Updated are NOT encoded in the QR Code image
+
+    if ($a.Name -ne $b.Name) {
+        Write-Warning "Name check fail, $($a.Name) != $($b.Name)"
+        return $false
+    }
+
+    if ($a.Issuer -ne $b.Issuer) {
+        Write-Warning "Issuer check fail, $($a.Issuer) != $($b.Issuer)"
+        return $false
+    }
+
+    if ($a.Algorithm -ne $b.Algorithm) {
+        Write-Warning "Algorithm check fail, $($a.Algorithm) != $($b.Algorithm)"
+        return $false
+    }
+
+    if ($a.Digits -ne $b.Digits) {
+        Write-Warning "Digits check fail, $($a.Digits) != $($b.Digits)"
+        return $false
+    }
+
+    if ($a.Type -ne $b.Type) {
+        Write-Warning "Type check fail, $($a.Type) != $($b.Type)"
+        return $false
+    }
+
+    if ($a.Counter -ne $b.Counter) {
+        Write-Warning "Counter check fail, $($a.Counter) != $($b.Counter)"
+        return $false
+    }
+
+    if ($a.Secret.ReadString() -ne $b.Secret.ReadString()) {
+        Write-Warning "Counter check fail, $($a.Secret.ReadString()) != $($b.Secret.ReadString())"
+        return $false
+    }
+
+    return $true
+}
+
 ## Load assemblies 
 Get-Module -Name $ModuleName `
     | Select-Object -ExpandProperty Path `
@@ -20,6 +66,7 @@ Get-Module -Name $ModuleName `
         Add-Type -Path $_
     }
 
+$password = 'test';
 $credential = New-Object -TypeName OtpAuth.PowerShell.Model.CredentialModel
 $secretAsB64 = [Convert]::ToBase64String(@(0xDE, 0xAD, 0xBE, 0xEF));
 $secret = New-Object -TypeName KeePassLib.Security.ProtectedString -ArgumentList @($true, $secretAsB64)
@@ -36,6 +83,9 @@ $credential.Updated = $credential.Created;
 $credential.Secret = $secret;
 
 if ($Write) {
+    Initialize-OtpAuthCredentialStore -Password $password
+
+    Save-OtpAuthCredential -Credential $credential
     Export-OtpAuthCredential -Credential $credential -Path $ImagePath
 
     if (Test-Path -Path $ImagePath -ErrorAction SilentlyContinue) {
@@ -46,40 +96,17 @@ if ($Write) {
 if ($Read) {
     $value = Import-OtpAuthCredential -Path $ImagePath
 
-    ## NOTE: Id, Created, Updated are NOT encoded in the QR Code image
-
-    if ($value.Name -ne $credential.Name) {
-        Write-Warning "Name check fail, $($value.Name) != $($credential.Name)"
+    if (-not (Test-CredentialsEqual -a $value -b $credential)) {
+        Write-Warning "Failed to correctly import credential from image."
         exit 1
     }
 
-    if ($value.Issuer -ne $credential.Issuer) {
-        Write-Warning "Issuer check fail, $($value.Issuer) != $($credential.Issuer)"
-        exit 1
-    }
+    Open-OtpAuthCredentialStore -Password $password
 
-    if ($value.Algorithm -ne $credential.Algorithm) {
-        Write-Warning "Algorithm check fail, $($value.Algorithm) != $($credential.Algorithm)"
-        exit 1
-    }
+    $value = Get-OtpAuthCredential -Issuer $credential.Issuer
 
-    if ($value.Digits -ne $credential.Digits) {
-        Write-Warning "Digits check fail, $($value.Digits) != $($credential.Digits)"
-        exit 1
-    }
-
-    if ($value.Type -ne $credential.Type) {
-        Write-Warning "Type check fail, $($value.Type) != $($credential.Type)"
-        exit 1
-    }
-
-    if ($value.Counter -ne $credential.Counter) {
-        Write-Warning "Counter check fail, $($value.Counter) != $($credential.Counter)"
-        exit 1
-    }
-
-    if ($value.Secret.ReadString() -ne $secretAsB64) {
-        Write-Warning "Counter check fail, $($value.Secret.ReadString()) != $($secretAsB64)"
+    if (-not (Test-CredentialsEqual -a $value -b $credential)) {
+        Write-Warning "Failed to correctly import credential from credential store."
         exit 1
     }
 

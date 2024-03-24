@@ -109,12 +109,12 @@ jobs:
               shell: pwsh
               run: |-
                 Import-Module -Name "${{ runner.temp }}/${{ env.moduleName }}/${{ env.moduleName }}.psd1"
-                ${{ github.workspace }}/test/workflow/Invoke-IntegrationTest.ps1 -ImagePath "${{ runner.temp }}/output.png" -Write
+                ${{ github.workspace }}/test/workflow/Invoke-IntegrationTest.ps1 -ImagePath "${{ runner.temp }}/output.png" -Write -Verbose
             - name: Test credential import
               shell: pwsh
               run: |-
                 Import-Module -Name "${{ runner.temp }}/${{ env.moduleName }}/${{ env.moduleName }}.psd1"
-                ${{ github.workspace }}/test/workflow/Invoke-IntegrationTest.ps1 -ImagePath "${{ runner.temp }}/output.png" -Read
+                ${{ github.workspace }}/test/workflow/Invoke-IntegrationTest.ps1 -ImagePath "${{ runner.temp }}/output.png" -Read -Verbose
     test-ubuntu:
         name: Ubuntu Test
         runs-on: ubuntu-latest
@@ -132,12 +132,12 @@ jobs:
               shell: pwsh
               run: |-
                 Import-Module -Name "${{ runner.temp }}/${{ env.moduleName }}/${{ env.moduleName }}.psd1"
-                ${{ github.workspace }}/test/workflow/Invoke-IntegrationTest.ps1 -ImagePath "${{ runner.temp }}/output.png" -Write
+                ${{ github.workspace }}/test/workflow/Invoke-IntegrationTest.ps1 -ImagePath "${{ runner.temp }}/output.png" -Write -Verbose
             - name: Test credential import
               shell: pwsh
               run: |-
                 Import-Module -Name "${{ runner.temp }}/${{ env.moduleName }}/${{ env.moduleName }}.psd1"
-                ${{ github.workspace }}/test/workflow/Invoke-IntegrationTest.ps1 -ImagePath "${{ runner.temp }}/output.png" -Read
+                ${{ github.workspace }}/test/workflow/Invoke-IntegrationTest.ps1 -ImagePath "${{ runner.temp }}/output.png" -Read -Verbose
     test-windows:
         name: Windows Test
         runs-on: windows-latest
@@ -155,12 +155,12 @@ jobs:
               shell: pwsh
               run: |-
                 Import-Module -Name "${{ runner.temp }}\${{ env.moduleName }}\${{ env.moduleName }}.psd1"
-                ${{ github.workspace }}\test\workflow\Invoke-IntegrationTest.ps1 -ImagePath "${{ runner.temp }}\output.png" -Write
+                ${{ github.workspace }}\test\workflow\Invoke-IntegrationTest.ps1 -ImagePath "${{ runner.temp }}\output.png" -Write -Verbose
             - name: Test credential import
               shell: pwsh
               run: |-
                 Import-Module -Name "${{ runner.temp }}\${{ env.moduleName }}\${{ env.moduleName }}.psd1"
-                ${{ github.workspace }}\test\workflow\Invoke-IntegrationTest.ps1 -ImagePath "${{ runner.temp }}\output.png" -Read
+                ${{ github.workspace }}\test\workflow\Invoke-IntegrationTest.ps1 -ImagePath "${{ runner.temp }}\output.png" -Read -Verbose
     publish:
         name: Publish
         runs-on: ubuntu-latest

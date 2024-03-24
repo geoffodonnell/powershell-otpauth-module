@@ -7,6 +7,9 @@ namespace OtpAuth.PowerShell.Cmdlet.CredentialStore {
 	[Cmdlet(VerbsData.Initialize, "OtpAuthCredentialStore")]
 	public class Initialize_OtpAuthCredentialStore : CmdletBase {
 
+		[Parameter(Position = 0, Mandatory = false)]
+		public string Password { get; set; }
+
 		protected override void ProcessRecord() {
 
 			if (PsConfiguration.CredentialStore.Exists) {
@@ -17,6 +20,23 @@ namespace OtpAuth.PowerShell.Cmdlet.CredentialStore {
 						this));
 				return;
 			}
+
+			var password = String.IsNullOrWhiteSpace(Password)
+				? PromptForPassword()
+				: Password;
+
+			if (String.IsNullOrWhiteSpace(password)) {
+				return;
+			}
+
+			PsConfiguration.CredentialStore.Open(password);
+
+			CommandRuntime.Host.UI.WriteLine("");
+			CommandRuntime.Host.UI.WriteLine($"Created credential store: '{PsConfiguration.CredentialStore.Location}'");
+			CommandRuntime.Host.UI.WriteLine("");
+		}
+
+        protected string PromptForPassword() {
 
 			CommandRuntime.Host.UI.WriteLine("Set password for the new credential store.");
 			CommandRuntime.Host.UI.Write("Enter password: ");
@@ -36,14 +56,11 @@ namespace OtpAuth.PowerShell.Cmdlet.CredentialStore {
 					String.Empty,
 					ErrorCategory.NotSpecified,
 					this));
+				return null;
 			}
 
-			PsConfiguration.CredentialStore.Open(pw1);
-
-			CommandRuntime.Host.UI.WriteLine("");
-			CommandRuntime.Host.UI.WriteLine($"Created credential store: '{PsConfiguration.CredentialStore.Location}'");
-			CommandRuntime.Host.UI.WriteLine("");
-		}
+			return pw1;
+        }
 
 	}
 
