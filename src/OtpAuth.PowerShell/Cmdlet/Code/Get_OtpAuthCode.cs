@@ -20,6 +20,7 @@ namespace OtpAuth.PowerShell.Cmdlet.Code {
 
 			var size = GetSize(Credential);
 			var mode = GetMode(Credential);
+			var period = Credential.Period != 0 ? Credential.Period : CredentialModel.DefaultPeriod;
 			var keyAsB64 = Credential.Secret.ReadChars();
 			var key = Convert.FromBase64CharArray(keyAsB64, 0, keyAsB64.Length);
 
@@ -32,7 +33,7 @@ namespace OtpAuth.PowerShell.Cmdlet.Code {
 
 			} else if (Credential.Type == Model.OtpType.TOTP) {
 
-				var totp = new Totp(key, 30, mode, size);
+				var totp = new Totp(key, period, mode, size);
 				var code = totp.ComputeTotp();
 
 				WriteObject(GetResult(code));

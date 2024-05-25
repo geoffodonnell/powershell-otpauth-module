@@ -1,6 +1,6 @@
 # powershell-otpauth-module
 
-[![CI/CD](https://github.com/geoffodonnell/powershell-otpauth-module/actions/workflows/ci-cd.yml/badge.svg?branch=develop&event=push)](https://github.com/geoffodonnell/powershell-otpauth-module/actions/workflows/ci-cd.yml)
+[![CI/CD](https://github.com/geoffodonnell/powershell-otpauth-module/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/geoffodonnell/powershell-otpauth-module/actions/workflows/ci-cd.yml)
 [![PSGallery version](https://img.shields.io/powershellgallery/v/OtpAuth?include_prereleases)](https://www.powershellgallery.com/packages/OtpAuth)
 
 # Overview
@@ -81,7 +81,7 @@ PS C:\Users\admin> Get-OtpAuthCredential -Issuer "Example" | Get-OtpAuthCode
 * PowerShell 7.4
 
 ## Local
-Clone this repository and execute `build-and-load-local.ps1` in a PowerShell window to build the module and import it into the current session. By default, when building locally the module is named `OtpAuth.Local`.
+Clone this repository and execute `build-and-load.ps1` in a PowerShell window to build the module and import it into the current session. By default, when building locally the module is named `OtpAuth.Local`.
 
 ## Pipelines
 powershell-outauth-module build pipelines use GitHub Actions workflows.

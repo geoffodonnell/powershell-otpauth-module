@@ -3,6 +3,7 @@ using ProtoBuf;
 using SkiaSharp;
 using System;
 using System.IO;
+using System.Linq;
 using System.Management.Automation;
 using System.Web;
 using ZXing;
@@ -12,6 +13,8 @@ namespace OtpAuth.PowerShell.Cmdlet.Credential {
 
 	[Cmdlet(VerbsData.Import, "OtpAuthCredential")]
 	public class Import_OtpAuthCredential : CmdletBase {
+
+		private static readonly StringComparison mCmp = StringComparison.InvariantCultureIgnoreCase;
 
 		[Parameter(Mandatory = true, ValueFromPipeline = true)]
 		public string Path { get; set; }
@@ -41,19 +44,52 @@ namespace OtpAuth.PowerShell.Cmdlet.Credential {
 			}
 
 			var uri = new Uri(result?.Text);
-			var args = HttpUtility.ParseQueryString(uri.Query);
-			var payload = args.Get("data").Replace(' ', '+');
-			var payloadAsBytes = Convert.FromBase64String(payload);
+			var credentials = GetCredentialModels(uri);
 
-			OtpMigrationPayload model = null;
+			foreach (var entry in credentials) {
+				WriteObject(entry);
+			}
+		}
+
+		private static CredentialModel[] GetCredentialModels(Uri uri) {
+
+			if (String.Equals(uri.Scheme, "otpauth-migration", mCmp)) {
+				return ProcessMigrationUri(uri); 
+			}
+
+			if (String.Equals(uri.Scheme, "otpauth", mCmp)) {
+				return ProcessOtpAuthUri(uri);
+			}
+
+			return null;
+		}
+
+		private static CredentialModel[] ProcessMigrationUri(Uri uri) {
+
+			// SEE: https://alexbakker.me/post/parsing-google-auth-export-qr-code.html
+
+			var args = HttpUtility.ParseQueryString(uri.Query);
+			var data = args.Get("data")?.Replace(' ', '+');
+			var payloadAsBytes = Convert.FromBase64String(data);
+
+			OtpMigrationPayload payload = null;
 
 			using (var stream = new MemoryStream(payloadAsBytes)) {
-				model = Serializer.Deserialize<OtpMigrationPayload>(stream);
+				payload = Serializer.Deserialize<OtpMigrationPayload>(stream);
 			}
 
-			foreach (var entry in model.OtpParameters) {
-				WriteObject(CredentialModel.FromParameters(entry));
-			}
+			return payload
+				.OtpParameters
+				.Select(CredentialModel.FromParameters)
+				.ToArray();
+		}
+
+		private static CredentialModel[] ProcessOtpAuthUri(Uri uri) {
+						
+			var payload = OtpAuthPayload.FromUri(uri);
+			var result = CredentialModel.FromAuthPayload(payload);
+
+			return [result];
 		}
 
 		private static Result Decode(string fullPath) {
@@ -81,7 +117,5 @@ namespace OtpAuth.PowerShell.Cmdlet.Credential {
 
 			return reader.Decode(bitmap);
 		}
-
 	}
-
 }

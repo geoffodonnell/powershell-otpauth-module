@@ -6,6 +6,8 @@ namespace OtpAuth.PowerShell.Model {
 
 	public class CredentialModel {
 
+		public const int DefaultPeriod = 30;
+
 		public string Id { get; set; }
 
 		public string Name { get; set; }
@@ -22,18 +24,23 @@ namespace OtpAuth.PowerShell.Model {
 
 		public long Counter { get; set; }
 
+		public int Period { get; set; }
+
 		public DateTimeOffset Created { get; set; }
 
 		public DateTimeOffset Updated { get; set; }
 
+		public CredentialModel() { 
+		
+			Id = Guid.NewGuid().ToString();
+		}
+
 		public static CredentialModel FromParameters(OtpMigrationParameters parameters) {
 
-			var id = Guid.NewGuid().ToString();
 			var now = DateTimeOffset.UtcNow;
 			var secret = Convert.ToBase64String(parameters.Secret);
 
 			return new CredentialModel {
-				Id = id,
 				Name = parameters.Name ?? "(undefined)",
 				Secret = new ProtectedString(true, secret),
 				Issuer = parameters.Issuer ?? "(undefined)",
@@ -41,6 +48,26 @@ namespace OtpAuth.PowerShell.Model {
 				Digits = parameters.Digits,
 				Type = parameters.Type,
 				Counter = parameters.Counter,
+				Period = DefaultPeriod,
+				Created = now,
+				Updated = now
+			};
+		}
+
+		public static CredentialModel FromAuthPayload(OtpAuthPayload payload) {
+
+			var now = DateTimeOffset.UtcNow;
+			var secret = Convert.ToBase64String(payload.Secret);
+
+			return new CredentialModel {
+				Name = payload.Name ?? "(undefined)",
+				Secret = new ProtectedString(true, secret),
+				Issuer = payload.Issuer ?? "(undefined)",
+				Algorithm = payload.Algorithm,
+				Digits = payload.Digits,
+				Type = payload.Type,
+				Counter = payload.Counter,
+				Period = payload.Period,
 				Created = now,
 				Updated = now
 			};
@@ -61,7 +88,7 @@ namespace OtpAuth.PowerShell.Model {
 
 		public static CredentialModel FromKeePassEntry(PwEntry entry) {
 
-			return new CredentialModel {
+			var result = new CredentialModel {
 				Id = entry.Strings.ReadSafe("Id").Trim(),
 				Name = entry.Strings.ReadSafe("Title").Trim(),
 				Secret = entry.Strings.Get("Password"),
@@ -70,9 +97,16 @@ namespace OtpAuth.PowerShell.Model {
 				Digits = Enum.Parse<OtpDigitCount>(entry.Strings.ReadSafe("Digits").Trim()),
 				Type = Enum.Parse<OtpType>(entry.Strings.ReadSafe("Type").Trim()),
 				Counter = Convert.ToInt64(entry.Strings.ReadSafe("Counter").Trim()),
+				Period = DefaultPeriod,
 				Created = DateTimeOffset.Parse(entry.Strings.ReadSafe("Created").Trim()),
 				Updated = DateTimeOffset.Parse(entry.Strings.ReadSafe("Updated").Trim())
 			};
+
+			if (entry.Strings.Exists("Period")) {
+				result.Period = Convert.ToInt32(entry.Strings.ReadSafe("Period").Trim());
+			}
+
+			return result;
 		}
 
 		public PwEntry ToKeePassEntry() {
@@ -87,6 +121,7 @@ namespace OtpAuth.PowerShell.Model {
 			result.Strings.Set("Digits", new ProtectedString(true, Convert.ToString((int)Digits)));
 			result.Strings.Set("Type", new ProtectedString(true, Convert.ToString((int)Type)));
 			result.Strings.Set("Counter", new ProtectedString(true, Convert.ToString(Counter)));
+			result.Strings.Set("Period", new ProtectedString(true, Convert.ToString(Period)));
 			result.Strings.Set("Created", new ProtectedString(true, Created.ToString("O")));
 			result.Strings.Set("Updated", new ProtectedString(true, Updated.ToString("O")));
 
